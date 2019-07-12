@@ -21,17 +21,24 @@ def checkCubas(i_sc, v_oc, i_mpp, v_mpp, k_i, k_v, n, a, T, G):
     C = -1*(2*v_mpp-v_oc) / (a*v_t) + (v_mpp*i_sc-v_oc*i_mpp) / (v_mpp*i_sc + v_oc * (i_mpp-i_sc))
     D = (v_mpp-v_oc)/(a*v_t)
 
-    # accounting for variation in temperature
-    v_oc = v_oc*(1+(T-T_r)*(k_v/v_oc))
-    v_mpp = v_mpp*(1+(T-T_r)*(k_v/v_mpp))
-    i_sc = i_sc*(1+(T-T_r)*(k_i/i_sc))
-    i_mpp = i_mpp*(1+(T-T_r)*(k_i/i_mpp))
+    # accounting for variation in temperature when k_v is not a percentage
+    # TODO: Test if dividing by 100 fixes problems with Kim Data
+    '''v_oc = v_oc*(1+(T-T_r)*(k_v/v_oc)/100)
+    v_mpp = v_mpp*(1+(T-T_r)*(k_v/v_mpp)/100)
+    i_sc = i_sc*(1+(T-T_r)*(k_i/i_sc)/100)*(G/G_r)
+    i_mpp = i_mpp*(1+(T-T_r)*(k_i/i_mpp)/100)'''
+
+    # accounting for variation in temperature when k_v is a percentage
+    v_oc = v_oc*(1+(T-T_r)*(k_v/100))
+    v_mpp = v_mpp*(1+(T-T_r)*(k_v/100))
+    i_sc = i_sc*(1+(T-T_r)*(k_i/100))*(G/G_r)
+    i_mpp = i_mpp*(1+(T-T_r)*(k_i/100))
 
     # calculating parameters
     r_s = A*(scipy.special.lambertw(B*numpy.exp(C), -1)-(D+C))
     r_sh = (v_mpp-i_mpp*r_s)*(v_mpp-r_s*(i_sc-i_mpp)-(a*v_t)) / ((v_mpp-i_mpp*r_s)*(i_sc-i_mpp) - (a*v_t*i_mpp))
     i_0 = ((r_sh+r_s)*i_sc-v_oc)/(r_sh*numpy.exp(v_oc/(a*v_t)))
-    i_pv = ((r_sh+r_s) / r_sh * i_sc)*(G/G_r)
+    i_pv = ((r_sh+r_s) / r_sh * i_sc)
 
     # create dictionary of parameters for ease of use
     result = {}
@@ -43,5 +50,5 @@ def checkCubas(i_sc, v_oc, i_mpp, v_mpp, k_i, k_v, n, a, T, G):
     return result
 
 def checkPVLib():
-    ''' Derive i_cs, v_oc, i_mpp, v_mpp, p_mpp from solar cell parameters
+    ''' Derive i_sc, v_oc, i_mpp, v_mpp, p_mpp from solar cell parameters
     '''
