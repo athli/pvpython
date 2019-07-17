@@ -10,7 +10,9 @@ deltat = 1000
 
 name = input("What file should we read from? Include .txt ")
 
-def realTimePlot(j, xs, ys):
+def realTimePlot(j):
+    xs = []
+    ys = []
     f = open(name, "r")
     lines = [line.rstrip('\n') for line in f]
     for line in lines:
@@ -20,9 +22,10 @@ def realTimePlot(j, xs, ys):
             ys.append(temp)
             xs.append(dt.datetime.strptime(fields[0][0:15], "%H:%M:%S.%f"))
     ax.clear()
-    ax.plot(xs[0:2], ys[0:2])
-    ax.plot(xs[2:(len(xs)-1)], ys[2:(len(ys)-1)])
+    ax.plot(xs, ys)
     f.close()
 
-ani = animation.FuncAnimation(fig, realTimePlot, fargs = (times,temps), interval = deltat)
+realTimePlot(1)
+
+ani = animation.FuncAnimation(fig, realTimePlot, interval = deltat)
 plt.show()
